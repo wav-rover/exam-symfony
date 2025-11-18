@@ -14,8 +14,8 @@ API Symfony pour la gestion de hamsters avec authentification JWT.
 ### 1. Cloner le projet
 
 ```bash
-git clone <https://github.com/wav-rover/exam-symfony.git>
-cd tp-note-deveney
+git clone https://github.com/wav-rover/exam-symfony.git
+cd exam-symfony
 ```
 
 ### 2. Installer les dépendances
@@ -68,8 +68,6 @@ php bin/console doctrine:fixtures:load
 ```bash
 symfony server:start
 ```
-
-Ou avec PHP intégré :
 
 L'API sera accessible sur `http://localhost:8000`
 
