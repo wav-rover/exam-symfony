@@ -268,7 +268,7 @@ final class HamstersController extends AbstractController
         );
     }
 
-    #[Route('/api/hamster/sleep/{nbDays}', name: 'hamsters_sleep', methods: ['POST'])]
+    #[Route('/api/hamsters/sleep/{nbDays}', name: 'hamsters_sleep', methods: ['POST'])]
     public function sleep(
         int $nbDays,
         HamstersRepository $hamstersRepository,
