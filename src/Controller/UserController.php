@@ -2,8 +2,10 @@
 
 namespace App\Controller;
 
+use App\Entity\Hamsters;
 use App\Entity\User;
 use App\Repository\UserRepository;
+use Faker\Factory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -55,6 +57,11 @@ final class UserController extends AbstractController
         $user->setPassword($hashedPassword);
 
         $entityManager->persist($user);
+
+        foreach ($this->createStarterHamsters($user) as $hamster) {
+            $entityManager->persist($hamster);
+        }
+
         $entityManager->flush();
 
         return $this->json(
@@ -114,5 +121,22 @@ final class UserController extends AbstractController
             ],
             Response::HTTP_OK
         );
+    }
+
+    private function createStarterHamsters(User $owner): array
+    {
+        $faker = Factory::create('fr_FR');
+        $genders = ['f', 'm', 'f', 'm'];
+        $hamsters = [];
+
+        foreach ($genders as $genre) {
+            $hamster = new Hamsters();
+            $hamster->setName($faker->firstName());
+            $hamster->setGenre($genre);
+            $hamster->setOwner($owner);
+            $hamsters[] = $hamster;
+        }
+
+        return $hamsters;
     }
 }

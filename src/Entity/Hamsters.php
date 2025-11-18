@@ -22,21 +22,21 @@ class Hamsters
     )]
     private ?string $name = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(options: ['default' => 100])]
     #[Assert\Range(
         min: 0,
         max: 100,
         notInRangeMessage: 'La valeur de hunger doit être entre {{ min }} et {{ max }}'
     )]
-    private ?int $hunger = null;
+    private int $hunger = 100;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(options: ['default' => 0])]
     #[Assert\Range(
         min: 0,
         max: 500,
         notInRangeMessage: 'L\'âge doit être entre {{ min }} et {{ max }} jours'
     )]
-    private ?int $age = null;
+    private int $age = 0;
 
     #[ORM\Column(length: 1)]
     #[Assert\NotBlank(message: 'Le genre est obligatoire')]
@@ -46,8 +46,8 @@ class Hamsters
     )]
     private ?string $genre = null;
 
-    #[ORM\Column]
-    private ?bool $active = null;
+    #[ORM\Column(options: ['default' => true])]
+    private bool $active = true;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'hamsters')]
     #[ORM\JoinColumn(nullable: false)]
@@ -72,23 +72,23 @@ class Hamsters
         return $this;
     }
 
-    public function getHunger(): ?int
+    public function getHunger(): int
     {
         return $this->hunger;
     }
 
-    public function setHunger(?int $hunger): static
+    public function setHunger(int $hunger): static
     {
         $this->hunger = $hunger;
         return $this;
     }
 
-    public function getAge(): ?int
+    public function getAge(): int
     {
         return $this->age;
     }
 
-    public function setAge(?int $age): static
+    public function setAge(int $age): static
     {
         $this->age = $age;
 
@@ -106,7 +106,7 @@ class Hamsters
         return $this;
     }
 
-    public function isActive(): ?bool
+    public function isActive(): bool
     {
         return $this->active;
     }
