@@ -81,7 +81,7 @@ final class UserController extends AbstractController
     {
         return $this->json([
             'user' => $user,
-        ], Response::HTTP_OK);
+        ], Response::HTTP_OK, [], ['groups' => ['user_list']]);
     }
 
     #[Route('/api/delete/{id}', name: 'api_delete_user', methods: ['DELETE'])]

@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -17,10 +18,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['user_list', 'hamster_list'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
     #[Assert\Email(message: 'L\'email doit être valide.')]
+    #[Groups(['user_list', 'hamster_list'])]
     private ?string $email = null;
 
     /**
@@ -41,12 +44,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(options: ['default' => 0])]
     #[Assert\PositiveOrZero(message: 'Le montant de gold doit être positif.')]
+    #[Groups(['user_list', 'hamster_list'])]
     private ?int $gold = 0;
 
     /**
      * @var Collection<int, Hamsters>
      */
     #[ORM\OneToMany(targetEntity: Hamsters::class, mappedBy: 'owner')]
+    #[Groups('user_list')]
     private Collection $hamsters;
 
     public function __construct()

@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\HamstersRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: HamstersRepository::class)]
@@ -12,6 +13,7 @@ class Hamsters
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['hamster_list', 'user_list'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
@@ -20,6 +22,7 @@ class Hamsters
         min: 2,
         minMessage: 'Le nom doit contenir au moins {{ min }} caractères'
     )]
+    #[Groups(['hamster_list', 'user_list'])]
     private ?string $name = null;
 
     #[ORM\Column(options: ['default' => 100])]
@@ -28,6 +31,7 @@ class Hamsters
         max: 100,
         notInRangeMessage: 'La valeur de hunger doit être entre {{ min }} et {{ max }}'
     )]
+    #[Groups(['hamster_list', 'user_list'])]
     private int $hunger = 100;
 
     #[ORM\Column(options: ['default' => 0])]
@@ -36,6 +40,7 @@ class Hamsters
         max: 500,
         notInRangeMessage: 'L\'âge doit être entre {{ min }} et {{ max }} jours'
     )]
+    #[Groups(['hamster_list', 'user_list'])]
     private int $age = 0;
 
     #[ORM\Column(length: 1)]
@@ -44,15 +49,18 @@ class Hamsters
         choices: ['m', 'f'],
         message: 'Le genre doit être "m" ou "f"'
     )]
+    #[Groups(['hamster_list', 'user_list'])]
     private ?string $genre = null;
 
     #[ORM\Column(options: ['default' => true])]
+    #[Groups(['hamster_list', 'user_list'])]
     private bool $active = true;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'hamsters')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull(message: 'Le propriétaire est obligatoire')]
     #[Assert\Valid]
+    #[Groups('hamster_list')]
     private User $owner;
 
     public function getId(): ?int

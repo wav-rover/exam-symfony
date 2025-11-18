@@ -17,7 +17,7 @@ final class HamstersController extends AbstractController
         $listHamsterss = $hamstersRepository->findAll();
         return $this->json([
             'listHamsterss' => $listHamsterss,
-        ], Response::HTTP_OK);
+        ], Response::HTTP_OK, [], ['groups' => ['hamster_list']]);
     }
 
     #[Route('/api/hamsters/{id}', name: 'hamsters_by_id', methods: ['GET'])]
@@ -25,6 +25,6 @@ final class HamstersController extends AbstractController
     {
         return $this->json([
             'hamsters' => $hamsters,
-        ], Response::HTTP_OK);
+        ], Response::HTTP_OK, [], ['groups' => ['hamster_list']]);
     }
 }
