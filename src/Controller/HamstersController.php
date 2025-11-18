@@ -58,6 +58,24 @@ final class HamstersController extends AbstractController
         return null;
     }
 
+    private function ageAllUserHamsters(
+        User $user,
+        HamstersRepository $hamstersRepository,
+        EntityManagerInterface $entityManager
+    ): void {
+        $hamsters = $hamstersRepository->findByOwner($user);
+
+        foreach ($hamsters as $hamster) {
+            $newAge = $hamster->getAge() + 5;
+            $newHunger = max(0, $hamster->getHunger() - 5);
+
+            $hamster->setAge($newAge);
+            $hamster->setHunger($newHunger);
+        }
+
+        $entityManager->flush();
+    }
+
     #[Route('/api/hamsters/{id}', name: 'hamsters_by_id', methods: ['GET'])]
     public function getHamstersById(Hamsters $hamsters): JsonResponse
     {
@@ -118,12 +136,15 @@ final class HamstersController extends AbstractController
         $entityManager->persist($newHamster);
         $entityManager->flush();
 
+        $this->ageAllUserHamsters($hamster1->getOwner(), $hamstersRepository, $entityManager);
+
         return $this->json(['hamster' => $newHamster], Response::HTTP_CREATED, [], ['groups' => ['hamster_list']]);
     }
 
     #[Route('/api/hamsters/{id}/sell', name: 'hamsters_sell', methods: ['POST'])]
     public function sell(
         Hamsters $hamsters,
+        HamstersRepository $hamstersRepository,
         EntityManagerInterface $entityManager
     ): JsonResponse {
         $error = $this->checkHamsterAccess($hamsters);
@@ -138,6 +159,8 @@ final class HamstersController extends AbstractController
         $entityManager->remove($hamsters);
         $entityManager->flush();
 
+        $this->ageAllUserHamsters($owner, $hamstersRepository, $entityManager);
+
         return $this->json(
             [
                 'message' => 'Hamster vendu avec succès pour 300 gold.',
@@ -150,6 +173,7 @@ final class HamstersController extends AbstractController
     #[Route('/api/hamsters/{id}/feed', name: 'hamsters_feed', methods: ['POST'])]
     public function feed(
         Hamsters $hamsters,
+        HamstersRepository $hamstersRepository,
         EntityManagerInterface $entityManager
     ): JsonResponse {
         $error = $this->checkHamsterAccess($hamsters);
@@ -187,6 +211,8 @@ final class HamstersController extends AbstractController
         $hamsters->setHunger(100);
 
         $entityManager->flush();
+
+        $this->ageAllUserHamsters($owner, $hamstersRepository, $entityManager);
 
         return $this->json(
             [
