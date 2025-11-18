@@ -14,7 +14,16 @@ final class HamstersController extends AbstractController
     #[Route('/api/hamsters', name: 'hamsters_list', methods: ['GET'])]
     public function getAllHamsterss(HamstersRepository $hamstersRepository): JsonResponse
     {
-        $listHamsterss = $hamstersRepository->findAll();
+        $user = $this->getUser();
+
+        if (!$user) {
+            return $this->json(
+                ['message' => 'Utilisateur non authentifié.'],
+                Response::HTTP_UNAUTHORIZED
+            );
+        }
+
+        $listHamsterss = $hamstersRepository->findByOwner($user);
         return $this->json([
             'listHamsterss' => $listHamsterss,
         ], Response::HTTP_OK, [], ['groups' => ['hamster_list']]);

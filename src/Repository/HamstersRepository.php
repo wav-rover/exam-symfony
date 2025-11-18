@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Hamsters;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -40,4 +41,9 @@ class HamstersRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    public function findByOwner(User $owner): array
+    {
+        return $this->findBy(['owner' => $owner]);
+    }
 }
