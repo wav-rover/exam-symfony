@@ -61,13 +61,14 @@ final class HamstersController extends AbstractController
     private function ageAllUserHamsters(
         User $user,
         HamstersRepository $hamstersRepository,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        int $nbDays = 5
     ): void {
         $hamsters = $hamstersRepository->findByOwner($user);
 
         foreach ($hamsters as $hamster) {
-            $newAge = $hamster->getAge() + 5;
-            $newHunger = max(0, $hamster->getHunger() - 5);
+            $newAge = $hamster->getAge() + $nbDays;
+            $newHunger = max(0, $hamster->getHunger() - $nbDays);
 
             $hamster->setAge($newAge);
             $hamster->setHunger($newHunger);
@@ -264,6 +265,29 @@ final class HamstersController extends AbstractController
             Response::HTTP_OK,
             [],
             ['groups' => ['hamster_list']]
+        );
+    }
+
+    #[Route('/api/hamster/sleep/{nbDays}', name: 'hamsters_sleep', methods: ['POST'])]
+    public function sleep(
+        int $nbDays,
+        HamstersRepository $hamstersRepository,
+        EntityManagerInterface $entityManager
+    ): JsonResponse {
+        $user = $this->getUser();
+
+        if (!$user instanceof User) {
+            return $this->json(
+                ['message' => 'Utilisateur non authentifié.'],
+                Response::HTTP_UNAUTHORIZED
+            );
+        }
+
+        $this->ageAllUserHamsters($user, $hamstersRepository, $entityManager, $nbDays);
+
+        return $this->json(
+            ['message' => 'Hamsters ont dormi avec succès.'],
+            Response::HTTP_OK
         );
     }
 }
