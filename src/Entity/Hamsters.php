@@ -20,7 +20,7 @@ class Hamsters
     #[Assert\NotBlank(message: 'Le nom est obligatoire')]
     #[Assert\Length(
         min: 2,
-        minMessage: 'Le nom doit contenir au moins {{ min }} caractères'
+        minMessage: 'Le nom doit contenir au moins {{ limit }} caractères'
     )]
     #[Groups(['hamster_list', 'user_list'])]
     private ?string $name = null;

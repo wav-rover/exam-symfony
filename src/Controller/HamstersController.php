@@ -12,6 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use App\Entity\Hamsters;
 use App\Entity\User;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class HamstersController extends AbstractController
 {
@@ -118,5 +119,75 @@ final class HamstersController extends AbstractController
         $entityManager->flush();
 
         return $this->json(['hamster' => $newHamster], Response::HTTP_CREATED, [], ['groups' => ['hamster_list']]);
+    }
+
+    #[Route('/api/hamsters/{id}/sell', name: 'hamsters_sell', methods: ['POST'])]
+    public function sell(
+        Hamsters $hamsters,
+        EntityManagerInterface $entityManager
+    ): JsonResponse {
+        $error = $this->checkHamsterAccess($hamsters);
+        if ($error) {
+            return $error;
+        }
+
+        $owner = $hamsters->getOwner();
+        $currentGold = $owner->getGold() ?? 0;
+        $owner->setGold($currentGold + 300);
+
+        $entityManager->remove($hamsters);
+        $entityManager->flush();
+
+        return $this->json(
+            [
+                'message' => 'Hamster vendu avec succès pour 300 gold.',
+                'gold' => $owner->getGold(),
+            ],
+            Response::HTTP_OK
+        );
+    }
+
+    #[Route('/api/hamsters/{id}/rename', name: 'hamsters_rename', methods: ['PUT'])]
+    public function rename(
+        Hamsters $hamsters,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        ValidatorInterface $validator
+    ): JsonResponse {
+        $error = $this->checkHamsterAccess($hamsters);
+        if ($error) {
+            return $error;
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $newName = $data['name'] ?? null;
+
+        $hamsters->setName(trim($newName));
+
+        $errors = $validator->validate($hamsters);
+
+        if (count($errors) > 0) {
+            $errorMessages = [];
+            foreach ($errors as $error) {
+                $errorMessages[] = $error->getMessage();
+            }
+
+            return $this->json(
+                ['message' => 'Erreurs de validation', 'errors' => $errorMessages],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        $entityManager->flush();
+
+        return $this->json(
+            [
+                'message' => 'Hamster renommé avec succès.',
+                'hamster' => $hamsters,
+            ],
+            Response::HTTP_OK,
+            [],
+            ['groups' => ['hamster_list']]
+        );
     }
 }
