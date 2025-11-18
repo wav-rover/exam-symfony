@@ -88,6 +88,7 @@ class Hamsters
     public function setHunger(int $hunger): static
     {
         $this->hunger = $hunger;
+        $this->updateActiveStatus();
         return $this;
     }
 
@@ -99,7 +100,7 @@ class Hamsters
     public function setAge(int $age): static
     {
         $this->age = $age;
-
+        $this->updateActiveStatus();
         return $this;
     }
 
@@ -136,5 +137,21 @@ class Hamsters
         $this->owner = $owner;
 
         return $this;
+    }
+
+    private function updateActiveStatus(): void
+    {
+        if ($this->age > 500 || $this->hunger < 0) {
+            $this->active = false;
+        }
+    }
+
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+
+
+    public function updateActiveStatusBeforeSave(): void
+    {
+        $this->updateActiveStatus();
     }
 }
