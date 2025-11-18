@@ -143,6 +143,8 @@ class Hamsters
     {
         if ($this->age > 500 || $this->hunger < 0) {
             $this->active = false;
+        } else {
+            $this->active = true;
         }
     }
 

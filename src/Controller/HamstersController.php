@@ -147,6 +147,56 @@ final class HamstersController extends AbstractController
         );
     }
 
+    #[Route('/api/hamsters/{id}/feed', name: 'hamsters_feed', methods: ['POST'])]
+    public function feed(
+        Hamsters $hamsters,
+        EntityManagerInterface $entityManager
+    ): JsonResponse {
+        $error = $this->checkHamsterAccess($hamsters);
+        if ($error) {
+            return $error;
+        }
+
+        $currentHunger = $hamsters->getHunger();
+        $cost = 100 - $currentHunger;
+
+        if ($cost <= 0) {
+            return $this->json(
+                [
+                    'message' => 'Le hamster a plus faim du tout du tout.',
+                    'gold' => $hamsters->getOwner()->getGold(),
+                ],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        $owner = $hamsters->getOwner();
+        $currentGold = $owner->getGold() ?? 0;
+
+        if ($currentGold < $cost) {
+            return $this->json(
+                [
+                    'message' => 'Fonds insuffisants. Coût: ' . $cost . ' gold, disponible: ' . $currentGold . ' gold.',
+                    'gold' => $currentGold,
+                ],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        $owner->setGold($currentGold - $cost);
+        $hamsters->setHunger(100);
+
+        $entityManager->flush();
+
+        return $this->json(
+            [
+                'message' => 'Hamster nourri avec succès.',
+                'gold' => $owner->getGold(),
+            ],
+            Response::HTTP_OK
+        );
+    }
+
     #[Route('/api/hamsters/{id}/rename', name: 'hamsters_rename', methods: ['PUT'])]
     public function rename(
         Hamsters $hamsters,
